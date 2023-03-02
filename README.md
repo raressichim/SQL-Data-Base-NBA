@@ -49,7 +49,9 @@ alter table meciuri(
 drop column scor
 add scor_echipa1 number(3) not null
 add scor_echipa2 number(3)not null);
-2-Adaugarea datelor
+
+--Inserting the data
+
 insert into meciuri(id_meci,data,id_arena,id_echipa1,id_echipa2,scor_echipa1,scor_echipa2)
 values (1,'1-NOV-2022',1,1,2,88,90);
 
@@ -86,59 +88,59 @@ values (9,'14-NOV-2022',3,5,8,108,80);
 
 --Actualization commands
 
---stergerea coloanei continent din tabela tara
+--Delete the column 'continent' from the 'tara' table.
 alter table tara
 drop column continent;
 
 
---actualizarea capacitatii arenei cu id ul 3 
+--Updating the capacity of the arena with ID 3. 
 update arena
 set capacitate=21300
 where id_arena=3;
 
 
---actualizarea scorului echipei 1 in meciul cu id_meci=1 
+--Updating the score of team 1 in the match with ID_match=1 
 update meciuriset scor_Echipa1=90
 where id_meci=1;
 
 
---actualizarea numelui primul sponsor din RedBULL -> Redbull
+--Updating the name of the first sponsor from RedBULL to Redbull
 update sponsori
 set denumire_sponsor='Redbull'
 where id_sponsor=1;
 
---actualizarea id-ului meciului cu id_meci=14 -> id_meci=10
+--Update the match ID from ID_match=14 to ID_match=10
 update meciuri
 set id_meci=10
 where id_meci=14;
 
 --Joints
 
---sa se afiseze echipele care sunt sponsorizate de Adidas
+--Display the teams that are sponsored by Adidas
 select e.denumire_echipa
 from echipa e,sponsori s
 where e.id_sponsor=s.id_sponsor and s.denumire_sponsor='Adidas';
 
---sa se afiseze jucatorii echipei Lakers
+--Display the players of the Lakers team
 select j.nume_jucator||' '||j.prenume_jucator as jucator
 from jucatori j,echipa e
 where j.id_echipa=e.id_echipa and e.denumire_echipa='Lakers';
 
 --Group functios
 
---sa se afiseze numarul echipelor antrenate de Brown Larry
+--Display the number of teams coached by Brown Larry
 select count(e.id_echipa)
 from echipa e,antrenori a
 where e.id_antrenori=a.id_antrenor and a.nume_antrenor='Brown'
 group by e.id_antrenori,a.nume_antrenor;
 
---sa se afiseze numarul meciurilor jucate in arena cu id-ul 5
+--Display the number of matches played in the arena with ID 5
 select count(m.id_meci)
 from meciuri m
 where m.id_arena=5
 group by m.id_arena;
 
---sa se afiseze cate meciuri s-au jucat in arena Phillips
+--Display the number of matches played at Phillips Arena
 select count(m.id_meci)
 from meciuri m,arena a
 where m.id_arena=a.id_arena and a.denumire_arena='Philips Arena'
@@ -146,44 +148,44 @@ group by a.denumire_arena,m.id_arena;
 
 --Subqueries
 
---sa se afiseze tara din care face parte arena cu cea mai mare capacitate
+--Display the country where the arena with the highest capacity belongs to
 select denumire_tara 
 from tara t,arena a
 where t.id_tara=a.id_tara and a.capacitate=(select max(a.capacitate)from arena a);
 
---sa se afiseze numele echipelor gazda ce au inscris mai multe puncte intr-un meci decat media punctelor inscrise de echipele gazda(id_echipa1)
+--Display the names of the home teams that have scored more points in a match than the average points scored by the home teams (with ID_team1)
 select DISTINCT e.denumire_echipa
 from echipa e,meciuri m
 where m.id_echipa1=e.id_echipa and m.scor_echipa1>(select avg(scor_echipa1) from meciuri );
 
 
---sa se afiseze echipa gazda care a inscris cele mai multe puncte intr-un meci
+--Display the home team that scored the most points in a match
 select e.denumire_echipa
 from echipa e,meciuri m
 where e.id_echipa=m.id_echipa1 and m.scor_echipa1=(select max(scor_echipa1) from meciuri m);
 
---sa se afiseze data meciului in care s-au inscris cele mai multe puncte
+--Display the date of the match where the most points were scored
 select data
 from meciuri
 where scor_echipa1+scor_echipa2=(select max(scor_echipa1+scor_echipa2)from meciuri);
 
 --Virtual tables
 
---sa se creeze o tabela virtuala care sa contina echipele sponsorizate de Nike
+--Create a virtual table that contains the teams sponsored by Nike
 create view sponsorizate_de_Nike as
 select e.denumire_echipa
 from echipa e,sponsori s
 where e.id_sponsor=s.id_sponsor and s.denumire_sponsor='Nike';
 select * from sponsorizate_de_nike;
 
---sa se creeze o tabela virtuala care sa contina jucatorii antrenati de antrenorul cu id 1
+--Create a virtual table that contains the players coached by the coach with ID 1
 create view jucatori_antrenor_1 as
 select j.nume_jucator 
 from antrenori a,echipa e,jucatori j
 where e.id_antrenori=a.id_antrenor and j.id_echipa=e.id_echipa and a.id_antrenor=1;
 select* from jucatori_antrenor_1;
 
---sa se creeze o tabela virtuala ce contine meciurile echipei Chicago Bulls
+--Create a virtual table that contains the matches of the Chicago Bulls team
 create view meciuri_bulls as
 select m.id_meci
 from meciuri m,echipa e
